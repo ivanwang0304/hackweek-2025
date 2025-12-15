@@ -40,10 +40,8 @@ app.post("/api/repair", upload.single("file"), async (req, res) => {
 
 		// Repair STL and send
 		const repairedPath = await repair(stlPath);
-		console.log("> REPAIRED PATH", repairedPath, req.file, req.filename);
 		const repairedFilename =
 			req.file.originalname.replace(/\.[^/.]+$/, "") + "_repaired.obj";
-		console.log("> REPAIRED FILENAME", repairedFilename);
 		res.download(path.resolve(repairedPath), repairedFilename);
 	} catch (error) {
 		res.status(500).json({ error: error.message });
