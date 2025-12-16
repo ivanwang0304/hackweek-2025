@@ -8,7 +8,7 @@
 
 ### Demo
 
-<img width="600" height="500" alt="image" src="demo/Hackweek 2025 - 3D Model Exporter Demo.gif" />
+<img width="100%" height="100%" alt="image" src="demo/Hackweek 2025 - 3D Model Exporter Demo.gif" />
 
 ### API
 
