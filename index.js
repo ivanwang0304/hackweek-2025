@@ -52,9 +52,15 @@ app.post("/api/generate-link", upload.single("file"), async (req, res) => {
 
 		// Repair STL
 		const repairedPath = await repair(stlPath);
-		// const repairedFilename =
-		// 	req.file.originalname.replace(/\.[^/.]+$/, "") + "_repaired.obj";
-		// res.download(path.resolve(repairedPath), repairedFilename);
+
+		// Delete the original unrepaired OBJ file and STL file
+		deleteFile(objPath);
+		deleteFile(stlPath);
+
+		// Check if any other download tokens have expired
+		for (const token in downloads) {
+			checkAndDeleteExpiredDownload(token);
+		}
 
 		// Store the token, mapping it to the file and expiration
 		const baseName =
@@ -98,8 +104,7 @@ app.get("/api/download-info/:token", (req, res) => {
 			.json({ error: "Invalid or expired download link." });
 	}
 
-	if (Date.now() > downloadInfo.expires) {
-		delete downloads[token];
+	if (checkAndDeleteExpiredDownload(token)) {
 		return res.status(410).json({ error: "Download link has expired." });
 	}
 
@@ -142,7 +147,11 @@ app.get("/api/download/:token", async (req, res) => {
 
 		// If requesting OBJ, send the repaired .obj file directly
 		if (format === "obj") {
-			return res.download(filePath, fileName);
+			return res.download(
+				filePath,
+				fileName,
+				createDownloadCallback(res)
+			);
 		}
 
 		if (format === "3mf") {
@@ -160,19 +169,11 @@ app.get("/api/download/:token", async (req, res) => {
 			const convertedFilePath = filePath.replace(/\.obj$/i, ".3mf");
 			fs.writeFileSync(convertedFilePath, Buffer.from(arrayBuffer));
 
-			res.download(path.resolve(convertedFilePath), fileName, (err) => {
-				if (err) {
-					// Handle errors like file transmission interruption or permissions issues
-					console.error("Error during download stream:", err);
-
-					// Important: Only send a status/message if headers haven't already been sent
-					if (!res.headersSent) {
-						res.status(500).send("Failed to stream the file.");
-					}
-				} else {
-					console.log(`Successfully downloaded file.`);
-				}
-			});
+			res.download(
+				convertedFilePath,
+				fileName,
+				createDownloadCallback(res, convertedFilePath)
+			);
 		} else {
 			// Convert repaired .obj file to requested format
 			const convertedFilePath = await convertObjToFormat(
@@ -180,19 +181,11 @@ app.get("/api/download/:token", async (req, res) => {
 				format
 			);
 
-			res.download(path.resolve(convertedFilePath), fileName, (err) => {
-				if (err) {
-					// Handle errors like file transmission interruption or permissions issues
-					console.error("Error during download stream:", err);
-
-					// Important: Only send a status/message if headers haven't already been sent
-					if (!res.headersSent) {
-						res.status(500).send("Failed to stream the file.");
-					}
-				} else {
-					console.log(`Successfully downloaded file.`);
-				}
-			});
+			res.download(
+				convertedFilePath,
+				fileName,
+				createDownloadCallback(res, convertedFilePath)
+			);
 		}
 	} catch (error) {
 		console.error("Conversion error:", error);
@@ -248,4 +241,60 @@ async function convertObjToFormat(objPath, targetFormat) {
 	fs.writeFileSync(convertedFilePath, Buffer.from(arrayBuffer));
 
 	return convertedFilePath;
+}
+
+/**
+ * Create a callback function for the download stream
+ * @param {express.Response} res - The response object
+ * @param {string} [filePath] - The path to the file to delete, if provided, the file will be deleted after the download is complete
+ * @returns {function} The callback function
+ */
+function createDownloadCallback(res, filePath) {
+	return (err) => {
+		if (err) {
+			// Handle errors like file transmission interruption or permissions issues
+			console.error("Error during download stream:", err);
+
+			// Important: Only send a status/message if headers haven't already been sent
+			if (!res.headersSent) {
+				res.status(500).send("Failed to stream the file.");
+			}
+		} else {
+			console.log(`Successfully downloaded file.`);
+		}
+
+		if (filePath) {
+			deleteFile(filePath);
+		}
+	};
+}
+
+/**
+ * Check if a download link has expired, and if so, delete the file and the token
+ * @param {string} token - The token of the download info
+ * @returns {boolean} True if the download link has expired, false otherwise
+ */
+function checkAndDeleteExpiredDownload(token) {
+	const downloadInfo = downloads[token];
+	if (Date.now() > downloadInfo.expires) {
+		deleteFile(downloadInfo.filePath);
+
+		delete downloads[token];
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Safely delete a file
+ * @param {string} filePath - The path to the file to delete
+ */
+function deleteFile(filePath) {
+	if (fs.existsSync(filePath)) {
+		fs.unlink(filePath, (err) => {
+			if (err) {
+				console.error("Error deleting file:", err);
+			}
+		});
+	}
 }

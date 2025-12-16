@@ -166,14 +166,12 @@
 			});
 
 			fetch(`/api/download-info/${token}`)
-				.then((res) => {
-					if (!res.ok)
-						throw new Error(
-							res.status === 404
-								? "Invalid or expired download link."
-								: "Something went wrong."
-						);
-					return res.json();
+				.then(async (res) => {
+					const json = await res.json();
+					if (!res.ok) {
+						throw new Error(json.error || "Something went wrong.");
+					}
+					return json;
 				})
 				.then((data) => {
 					baseName = data.fileName.replace(/\.[^/.]+$/, "");
