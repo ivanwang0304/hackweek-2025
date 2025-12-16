@@ -112,7 +112,10 @@ app.get("/api/download-info/:token", (req, res) => {
 	const baseName = downloadInfo.baseName;
 	const fileName = `${baseName}.${format}`;
 
-	res.json({ fileName, availableFormats: ["obj", "stl", "3mf"] });
+	// Read the OBJ file content
+	const objContent = fs.readFileSync(downloadInfo.filePath, "utf-8");
+
+	res.json({ fileName, availableFormats: ["obj", "stl", "3mf"], objContent });
 });
 
 // Actual file download endpoint with format conversion
