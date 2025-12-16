@@ -16,8 +16,6 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 
-const objLoader = new OBJLoader();
-
 // Simple in-memory storage for tokens
 const downloads = {};
 
@@ -148,15 +146,32 @@ app.get("/api/download/:token", async (req, res) => {
 		}
 
 		if (format === "3mf") {
-			// TODO: 3mf is not working
-			objLoader.load(filePath, async (object) => {
-				// Parse the three.js object and generate the 3MF encoded output
-				const blob = await exportTo3MF(object);
-				const arrayBuffer = await blob.arrayBuffer();
-				const formatPath = filePath.replace(/\.obj$/i, ".3mf");
-				fs.writeFileSync(formatPath, Buffer.from(arrayBuffer));
+			// Read the OBJ file content
+			const objTextContent = await fs.readFileSync(filePath, "utf-8");
 
-				res.download(path.resolve(formatPath), "3mf_repaired.3mf");
+			// Parse the OBJ file content
+			const objLoader = new OBJLoader();
+			const loadedObject = objLoader.parse(objTextContent);
+
+			// Convert the object to 3MF
+			const blob = await exportTo3MF(loadedObject);
+
+			const arrayBuffer = await blob.arrayBuffer();
+			const convertedFilePath = filePath.replace(/\.obj$/i, ".3mf");
+			fs.writeFileSync(convertedFilePath, Buffer.from(arrayBuffer));
+
+			res.download(path.resolve(convertedFilePath), fileName, (err) => {
+				if (err) {
+					// Handle errors like file transmission interruption or permissions issues
+					console.error("Error during download stream:", err);
+
+					// Important: Only send a status/message if headers haven't already been sent
+					if (!res.headersSent) {
+						res.status(500).send("Failed to stream the file.");
+					}
+				} else {
+					console.log(`Successfully downloaded file.`);
+				}
 			});
 		} else {
 			// Convert repaired .obj file to requested format
