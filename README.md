@@ -23,7 +23,7 @@
 
 ---
 
--   `[GET] /api/download/:token` - Download the repaired .obj file
+-   `[GET] /api/download/:token?format=[obj|stl|3mf]` - Download the repaired .obj file
     -   Downloads the repaired .obj file
     -   TODO: Return a HTML page where user can select which format to download
  
