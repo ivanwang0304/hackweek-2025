@@ -27,4 +27,4 @@
     -   Downloads the repaired .obj file
     -   TODO: Return a HTML page where user can select which format to download
  
-<img width="600" height="705" alt="image" src="https://github.com/user-attachments/assets/5762084e-5914-4b9f-9e19-04ebf8783f9a" />
+<img width="600" height="1452" alt="image" src="https://github.com/user-attachments/assets/cd162775-6c8d-4c1e-b667-9768101404d3" />
