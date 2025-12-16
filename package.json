@@ -15,6 +15,7 @@
     "multer": "^2.0.2",
     "stl-repair": "^0.0.3",
     "three": "^0.182.0",
+    "three-3mf-exporter": "^45.0.0",
     "uuid": "^13.0.0"
   }
 }

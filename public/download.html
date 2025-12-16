@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Download Ready</title>
+		<style>
+			@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			body {
+				min-height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-family: "Space Mono", monospace;
+				background: linear-gradient(
+					135deg,
+					#0f0f23 0%,
+					#1a1a3e 50%,
+					#0f0f23 100%
+				);
+			}
+			.container {
+				text-align: center;
+				padding: 3rem;
+				background: rgba(255, 255, 255, 0.03);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				border-radius: 24px;
+				backdrop-filter: blur(10px);
+				box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+				max-width: 500px;
+			}
+			h1 {
+				color: #00ff88;
+				font-size: 2rem;
+				margin-bottom: 0.5rem;
+				text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+			}
+			.filename {
+				color: #888;
+				font-size: 0.9rem;
+				margin-bottom: 1.5rem;
+				word-break: break-all;
+			}
+			.format-selector {
+				margin-bottom: 1.5rem;
+			}
+			.format-label {
+				color: #888;
+				font-size: 0.8rem;
+				margin-bottom: 0.75rem;
+				display: block;
+			}
+			.format-buttons {
+				display: flex;
+				gap: 0.5rem;
+				justify-content: center;
+			}
+			.format-btn {
+				padding: 0.5rem 1rem;
+				font-family: "Space Mono", monospace;
+				font-size: 0.85rem;
+				font-weight: 700;
+				color: #888;
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid rgba(255, 255, 255, 0.2);
+				border-radius: 8px;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				text-transform: uppercase;
+			}
+			.format-btn:hover {
+				border-color: #00ff88;
+				color: #00ff88;
+			}
+			.format-btn.active {
+				background: rgba(0, 255, 136, 0.15);
+				border-color: #00ff88;
+				color: #00ff88;
+			}
+			.download-btn {
+				display: inline-block;
+				padding: 1rem 2.5rem;
+				font-family: "Space Mono", monospace;
+				font-size: 1rem;
+				font-weight: 700;
+				color: #0f0f23;
+				background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+				border: none;
+				border-radius: 12px;
+				cursor: pointer;
+				text-decoration: none;
+				text-transform: uppercase;
+				letter-spacing: 2px;
+				transition: all 0.3s ease;
+			}
+			.download-btn:hover {
+				transform: translateY(-3px);
+				box-shadow: 0 15px 35px rgba(0, 255, 136, 0.4);
+			}
+			.error {
+				color: #ff4466;
+			}
+			.loading {
+				color: #888;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>📦 Your File is Ready</h1>
+			<p class="filename" id="filename">Loading...</p>
+
+			<div
+				class="format-selector"
+				id="formatSelector"
+				style="display: none"
+			>
+				<span class="format-label">Choose format:</span>
+				<div class="format-buttons">
+					<button class="format-btn active" data-format="obj">
+						OBJ
+					</button>
+					<button class="format-btn" data-format="stl">STL</button>
+					<button class="format-btn" data-format="3mf">3MF</button>
+				</div>
+			</div>
+
+			<a
+				href="#"
+				class="download-btn"
+				id="downloadBtn"
+				style="display: none"
+				>Download</a
+			>
+			<p class="error" id="error" style="display: none"></p>
+		</div>
+
+		<script>
+			const token = window.location.pathname.split("/").pop();
+			const filenameEl = document.getElementById("filename");
+			const downloadBtn = document.getElementById("downloadBtn");
+			const errorEl = document.getElementById("error");
+			const formatSelector = document.getElementById("formatSelector");
+			const formatBtns = document.querySelectorAll(".format-btn");
+
+			let baseName = "";
+			let selectedFormat = "obj";
+
+			function updateDownload() {
+				filenameEl.textContent = `${baseName}.${selectedFormat}`;
+				downloadBtn.href = `/api/download/${token}?format=${selectedFormat}`;
+			}
+
+			formatBtns.forEach((btn) => {
+				btn.addEventListener("click", () => {
+					formatBtns.forEach((b) => b.classList.remove("active"));
+					btn.classList.add("active");
+					selectedFormat = btn.dataset.format;
+					updateDownload();
+				});
+			});
+
+			fetch(`/api/download-info/${token}`)
+				.then((res) => {
+					if (!res.ok)
+						throw new Error(
+							res.status === 404
+								? "Invalid or expired download link."
+								: "Something went wrong."
+						);
+					return res.json();
+				})
+				.then((data) => {
+					baseName = data.fileName.replace(/\.[^/.]+$/, "");
+					updateDownload();
+					formatSelector.style.display = "block";
+					downloadBtn.style.display = "inline-block";
+				})
+				.catch((err) => {
+					filenameEl.style.display = "none";
+					errorEl.textContent = err.message;
+					errorEl.style.display = "block";
+				});
+		</script>
+	</body>
+</html>
