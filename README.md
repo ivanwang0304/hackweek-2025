@@ -8,12 +8,12 @@
 
 ### API
 
--   `/` - GET request proof of concept
+-   `[GET] /` - Proof of concept
     -   Returns an HTML page where you can upload .obj files and download them
--   `/api/generate-link` - POST request to get download link
+-   `[POST] /api/generate-link` - Upload .obj and get download link
     -   Add .obj file to form-data with key set to `file`
     -   Returns a `/api/download/:token` url
--   `/api/download/:token` - GET request to download the repaired .obj file
+-   `[GET] /api/download/:token` - Download the repaired .obj file
     -   Downloads the repaired .obj file
     -   TODO: Return a HTML page where user can select which format to download
 
