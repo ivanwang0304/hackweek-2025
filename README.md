@@ -1,5 +1,19 @@
 # Hackweek 2025 - 3D Printer Server
 
+Roblox Studio models require a lot of clean up before they can be used for 3D printing. The current process to get a model from Roblox Studio to a 3D printable state is:
+1. From Roblox Studio, select model and export as OBJ
+2. Use a third-party website to convert OBJ to STL
+3. Use another third-part website to repair the STL model
+4. Import the repaired STL model to your 3D printing software
+5. Rotate the model since Roblox Studio uses Y-up coordinates, while 3D printers use Z-up
+6. Print model
+
+This API helps streamline this process:
+1. From Roblox Studio, select model and click Print button
+    a. Server automatically handles repairing and rotating model and sends back a URL to the download page
+3. Redirects you to the download page where you can select which format (OBJ, STL, 3MF) to download the model
+4. Import the model to your 3D printing software and print!
+
 ### Setup
 
 1. Run `npm install`
