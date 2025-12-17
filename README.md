@@ -19,13 +19,13 @@ Roblox Studio models require a lot of clean up before they can be used for 3D pr
 
 <img width="100%" height="100%" alt="image" src="demo/Hackweek 2025 - 3D Model Exporter Demo.gif" />
 
-### Setup
+## Setup
 
 1. Run `npm install`
 2. Run `npm start`
 3. Go to `http://localhost:3000`
 
-### API
+## API
 
 -   `[GET] /` - Proof of concept
     -   Returns an HTML page where you can upload OBJ files and download them
