@@ -292,11 +292,16 @@
 			let selectedFormat = "obj";
 
 			// Three.js setup
-			let scene, camera, renderer, controls;
+			let scene, camera, renderer, controls, zUpWorld;
 
 			function initThree() {
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color(0x26272c);
+
+				// Create a Z-up coordinate system group
+				zUpWorld = new THREE.Group();
+				zUpWorld.rotation.x = -Math.PI / 2; // Rotate to make Z-up
+				scene.add(zUpWorld);
 
 				const container = viewerEl;
 				const width = container.clientWidth;
@@ -308,7 +313,7 @@
 					0.1,
 					1000
 				);
-				camera.position.set(0, 0, 5);
+				camera.position.set(0, 10, 5);
 
 				renderer = new THREE.WebGLRenderer({ antialias: true });
 				renderer.setSize(width, height);
@@ -340,6 +345,16 @@
 				);
 				directionalLight2.position.set(-5, -5, -5);
 				scene.add(directionalLight2);
+
+				// Add infinite grid floor
+				const gridHelper = new THREE.GridHelper(
+					100,
+					100,
+					0x505056,
+					0x3a3a3e
+				);
+				gridHelper.rotation.x = -Math.PI / 2;
+				zUpWorld.add(gridHelper);
 
 				animate();
 
@@ -409,7 +424,17 @@
 					}
 				});
 
-				scene.add(object);
+				// Calculate bounding box and position model on grid
+				const box = new THREE.Box3().setFromObject(object);
+				const center = box.getCenter(new THREE.Vector3());
+				const size = box.getSize(new THREE.Vector3());
+
+				// Center horizontally (X, Y in Z-up space) and place bottom on grid (Z=0)
+				object.position.x = -center.x;
+				object.position.y = -center.y;
+				object.position.z = -box.min.z; // Move up so bottom touches Z=0
+
+				zUpWorld.add(object);
 
 				// Count vertices
 				let totalVertices = 0;

@@ -8,6 +8,7 @@ const { ModelConverter } = require("@polar3d/model-converter");
 const { exportTo3MF } = require("three-3mf-exporter");
 const { v4: uuidv4 } = require("uuid");
 
+const { OBJExporter } = require("three/addons/exporters/OBJExporter.js");
 const { OBJLoader } = require("three/addons/loaders/OBJLoader.js");
 
 const EXPIRATION_TIME_MS = 600000; // 10 minutes
@@ -48,6 +49,23 @@ app.post("/api/generate-link", upload.single("file"), async (req, res) => {
 		}
 
 		const objPath = path.resolve(req.file.path);
+
+		const objTextContent = await fs.readFileSync(objPath, "utf-8");
+		const objLoader = new OBJLoader();
+		const loadedObject = objLoader.parse(objTextContent);
+
+		// Rotate the object to make Z-up
+		loadedObject.rotation.x = Math.PI / 2;
+		loadedObject.updateMatrixWorld();
+
+		const exporter = new OBJExporter();
+		const result = exporter.parse(loadedObject);
+		const blob = new Blob([result], { type: "text/plain" });
+		const arrayBuffer = await blob.arrayBuffer();
+
+		// Overwrite the original OBJ file with the rotated one
+		fs.writeFileSync(objPath, Buffer.from(arrayBuffer));
+
 		const stlPath = await convertObjToFormat(objPath, "stl");
 
 		// Repair STL
