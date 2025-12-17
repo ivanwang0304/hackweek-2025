@@ -1,4 +1,4 @@
-# Hackweek 2025 - 3D Printer Server
+# Hackweek 2025 - 3D Model Exporter
 
 Roblox Studio models require a lot of clean up before they can be used for 3D printing. 
 
