@@ -10,7 +10,7 @@ const { v4: uuidv4 } = require("uuid");
 
 const { OBJLoader } = require("three/addons/loaders/OBJLoader.js");
 
-const EXPIRATION_TIME_MS = 3600000; // 1 hour
+const EXPIRATION_TIME_MS = 600000; // 10 minutes
 
 const PORT = process.env.PORT || 3000;
 
