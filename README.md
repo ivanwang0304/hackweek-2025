@@ -2,7 +2,7 @@
 
 Roblox Studio models require a lot of clean up before they can be used for 3D printing. 
 
-**The current process to get a model from Roblox Studio to a 3D printable state is:**
+**The current process to go from Roblox Studio to a 3D print is:**
 1. ⬆️ From Roblox Studio, select model and export as OBJ
 2. 🧑‍🏭 Use a third-party website to convert OBJ to STL
 3. 🧑‍🔧 Use another third-party website to repair the STL model
