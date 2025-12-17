@@ -7,7 +7,7 @@ Roblox Studio models require a lot of clean up before they can be used for 3D pr
 2. 🧑‍🏭 Use a third-party website to convert OBJ to STL
 3. 🧑‍🔧 Use another third-party website to repair the STL model
 4. ⬇️ Import the repaired STL model to your 3D printing software
-5. 🧑‍💻 Rotate the model since Roblox Studio uses Y-up coordinates, while 3D printers use Z-up
+5. 🧑‍💻 Rotate the model since Roblox Studio uses Y-up, while 3D printers use Z-up coordinates
 6. ⭐️ Print model
 
 **This API helps streamline the process:**
