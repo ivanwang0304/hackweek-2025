@@ -8,6 +8,7 @@ const { ModelConverter } = require("@polar3d/model-converter");
 const { exportTo3MF } = require("three-3mf-exporter");
 const { v4: uuidv4 } = require("uuid");
 
+const THREE = require("three");
 const { OBJExporter } = require("three/addons/exporters/OBJExporter.js");
 const { OBJLoader } = require("three/addons/loaders/OBJLoader.js");
 
@@ -56,6 +57,18 @@ app.post("/api/generate-link", upload.single("file"), async (req, res) => {
 
 		// Rotate the object to make Z-up
 		loadedObject.rotation.x = Math.PI / 2;
+		loadedObject.updateMatrixWorld();
+
+		// Calculate bounding box and scale model
+		const box = new THREE.Box3().setFromObject(loadedObject);
+		const size = box.getSize(new THREE.Vector3());
+
+		// Scale model so width or depth (whichever is larger) reaches 50
+		const maxHorizontal = Math.max(size.x, size.z);
+		const scaleFactor = 50 / maxHorizontal;
+
+		// Scale around the center by translating, scaling, then translating back
+		loadedObject.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		loadedObject.updateMatrixWorld();
 
 		const exporter = new OBJExporter();
