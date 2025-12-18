@@ -329,19 +329,19 @@
 				controls.maxDistance = 20;
 
 				// Lighting
-				const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+				const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
 				scene.add(ambientLight);
 
 				const directionalLight = new THREE.DirectionalLight(
 					0xffffff,
-					0.8
+					1.2
 				);
 				directionalLight.position.set(5, 10, 7.5);
 				scene.add(directionalLight);
 
 				const directionalLight2 = new THREE.DirectionalLight(
 					0xffffff,
-					0.4
+					0.8
 				);
 				directionalLight2.position.set(-5, -5, -5);
 				scene.add(directionalLight2);
@@ -349,7 +349,7 @@
 				// Add infinite grid floor
 				const gridHelper = new THREE.GridHelper(
 					100,
-					100,
+					20,
 					0x505056,
 					0x3a3a3e
 				);
